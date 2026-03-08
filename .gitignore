@@ -1,0 +1,24 @@
+# Vivado generated
+*.jou
+*.log
+*.str
+*.pb
+*.wdb
+*.dir/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.srcs/.Xil/
+*.xpr
+.Xil/
+vivado*.backup.*
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
