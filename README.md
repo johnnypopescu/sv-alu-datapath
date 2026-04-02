@@ -1,24 +1,33 @@
-# SystemVerilog ALU + Datapath
+# 8-bit ALU + Datapath in SystemVerilog
 
-8-bit ALU with a small memory subsystem (ROM, RAM, register file) — a mini-datapath that demonstrates how the core components of a CPU fit together.
+A minimal **8-bit processor datapath** implemented in SystemVerilog: an ALU with 8 operations connected to a register file, ROM (instructions / operands) and RAM (results). Verified through behavioral simulation in Vivado.
 
-Written in **SystemVerilog** and synthesized with **Vivado** for the **Boolean Board / Pynq-Z2** FPGA platforms used in the ETTI UPB Digital Integrated Circuits lab.
+This is the core of how a real CPU works — fetch operands from memory, run them through the ALU, write the result back. Built while studying *Digital Integrated Circuits* at ETTI UPB.
 
-## What it does
+## Architecture
 
-The datapath reads two operands from a preloaded ROM, runs them through the ALU with a chosen operation, and stores the result in a register file. Status flags (Zero, Negative, Carry) drive LEDs on the dev board.
+```
+   +-------+        +-----+        +----------+
+   |  ROM  | -----> |     | -----> | Register |
+   +-------+        | ALU |        |   File   |
+   |  ROM  | -----> |     |        +----------+
+   +-------+        +-----+              |
+                       |                 |
+                    flags                v
+                  (Z, N, C)         result LEDs
+```
 
 ## Modules
 
-| File | Role |
-|---|---|
-| `src/alu.sv` | 8-bit ALU — 8 operations, combinational |
-| `src/register_file.sv` | 8 registers × 8 bits, synchronous write, dual-port read |
-| `src/rom.sv` | 16 × 8-bit ROM with preloaded operands |
-| `src/ram.sv` | 16 × 8-bit synchronous RAM |
-| `src/datapath.sv` | Top-level module wiring everything together |
-| `sim/alu_tb.sv` | Testbench for the ALU alone |
-| `sim/datapath_tb.sv` | End-to-end testbench |
+| File | Role | Lines |
+|---|---|---|
+| `src/alu.sv` | 8-bit ALU, 8 operations, combinational | ~50 |
+| `src/register_file.sv` | 8 × 8-bit registers, dual-port read, sync write | ~30 |
+| `src/rom.sv` | 16 × 8-bit ROM with preloaded operands | ~30 |
+| `src/ram.sv` | 16 × 8-bit synchronous RAM | ~20 |
+| `src/datapath.sv` | Top-level wiring everything together | ~70 |
+| `sim/alu_tb.sv` | Unit testbench for the ALU (20+ test cases) | ~95 |
+| `sim/datapath_tb.sv` | End-to-end testbench with PASS/FAIL counters | ~125 |
 
 ## ALU operations
 
@@ -29,7 +38,7 @@ The datapath reads two operands from a preloaded ROM, runs them through the ALU 
 | `010` | AND  | `a & b` |
 | `011` | OR   | `a \| b` |
 | `100` | XOR  | `a ^ b` |
-| `101` | NOT  | `~a` (ignores b) |
+| `101` | NOT  | `~a` |
 | `110` | SHL  | `a << 1` |
 | `111` | SHR  | `a >> 1` |
 
@@ -38,38 +47,54 @@ Status flags:
 - **Negative** — MSB of result (signed interpretation)
 - **Carry** — carry-out from ADD or borrow from SUB
 
-## How to use in Vivado
+## How to simulate (no FPGA board needed)
 
-1. Open Vivado → **Create New Project**
-2. RTL Project, **don't specify sources at this time**
-3. Pick board: Boolean Board (or Pynq-Z2)
-4. Once created: **Add Sources** → add all files from `src/`
-5. **Add Sources** → Simulation sources → add files from `sim/`
-6. Set `datapath` as top module for synthesis
-7. Set `alu_tb` or `datapath_tb` as top for simulation
-8. **Run Simulation → Run Behavioral Simulation**
+Behavioral simulation runs entirely on your PC — Vivado simulates the digital circuit timing-accurately without any hardware.
+
+1. Open **Vivado** → **Create New Project** → RTL Project, no sources yet
+2. **Add Sources** → Design sources → add everything from `src/`
+3. **Add Sources** → Simulation sources → add files from `sim/`
+4. Set `alu_tb` (or `datapath_tb`) as simulation top
+5. **Run Simulation → Run Behavioral Simulation**
+
+The Tcl Console will print test results live.
 
 ## Expected simulation output
 
 ```
-=== ALU TEST ===
-[ADD]        a=10  b=25  op=000 -> result=35  (Z=0 N=0 C=0) OK
-[ADD carry]  a=200 b=100 op=000 -> result=44  (Z=0 N=0 C=1) OK
-[SUB]        a=50  b=30  op=001 -> result=20  (Z=0 N=0 C=0) OK
-[AND]        a=170 b=15  op=010 -> result=10  (Z=0 N=0 C=0) OK
-...
-=== DONE ===
+==========================================
+    ALU Testbench - 8-bit operations
+==========================================
+
+Result | Test            | Inputs and outputs
+-------+-----------------+--------------------------------
+  PASS  | ADD basic       | a= 10 b= 25 op=000 -> r= 35 Z=0 N=0 C=0
+  PASS  | ADD overflow    | a=200 b=100 op=000 -> r= 44 Z=0 N=0 C=1
+  PASS  | SUB basic       | a= 50 b= 30 op=001 -> r= 20 Z=0 N=0 C=0
+  PASS  | SUB borrow      | a= 10 b= 20 op=001 -> r=246 Z=0 N=1 C=1
+  PASS  | AND mask low    | a=170 b= 15 op=010 -> r= 10 Z=0 N=0 C=0
+  PASS  | XOR same        | a=255 b=255 op=100 -> r=  0 Z=1 N=0 C=0
+  ...
+
+==========================================
+    Rezultat: 20 PASS / 0 FAIL / 20 total
+==========================================
+    Toate testele au trecut.
 ```
 
-## Mapping to the Boolean Board
+## Optional — deploy to a real FPGA
 
-For physical deployment:
-- Switches → `rom_addr_a`, `rom_addr_b`, `op`
+The project synthesizes cleanly for the Boolean Board or Pynq-Z2:
+- Switches → `op[2:0]`, `rom_addr_a`, `rom_addr_b`
 - Buttons → `we_reg`, `rst`
 - LEDs → `result[7:0]`, `zero`, `negative`, `carry`
 
-A constraints file (`.xdc`) maps these signals to the actual pins of the FPGA.
+Add a constraints file (`.xdc`) mapping these signals to the board's physical pins.
 
-## Why this design
+## Why this design matters
 
-This is the same pattern used inside real CPUs — fetch operands from memory, push them through the ALU, store the result. Splitting the work into combinational (ALU) and sequential (registers, RAM) blocks is the foundation of digital design.
+Every CPU — from a 8-bit Arduino to a modern x86 — has the same basic shape: registers and memory feed an ALU, the ALU computes, results go back to storage. By building this skeleton in hardware, you learn:
+
+- How synchronous design works (clocked register writes, combinational reads)
+- The cost of operations at gate level (ADD needs ripple-carry, shift is just wiring)
+- How memory and compute fit together in a real datapath
