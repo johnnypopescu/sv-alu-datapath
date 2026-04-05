@@ -1,49 +1,68 @@
-// ALU 8 biti - 8 operatii selectate pe 3 biti
-// pur combinational
+// ALU pe 8 biti - 8 operatii selectate pe 3 biti
+// circuit pur combinational, dupa stilul de la lab 3 si 5
 
-module alu (
-    input  logic [7:0] a,
-    input  logic [7:0] b,
-    input  logic [2:0] op,
-    output logic [7:0] result,
-    output logic       zero,      // 1 daca rezultatul e 0
-    output logic       negative,  // 1 daca MSB = 1 (interpretare cu semn)
-    output logic       carry      // carry-out pt ADD/SUB
-);
+module alu
+	(
+		input logic [7:0] a,
+		input logic [7:0] b,
+		input logic [2:0] op,
+		output logic [7:0] result,
+		output logic zero,
+		output logic carry
+	);
 
-    // semnal intern pe 9 biti ca sa capteze carry-ul
-    logic [8:0] add_result;
-    logic [8:0] sub_result;
+logic [8:0] add_extended;
+logic [8:0] sub_extended;
 
-    always_comb begin
-        // default - evita latch-uri
-        result = 8'b0;
-        carry  = 1'b0;
+always_comb
+begin
+	add_extended = {1'b0, a} + {1'b0, b};
+	sub_extended = {1'b0, a} - {1'b0, b};
 
-        add_result = {1'b0, a} + {1'b0, b};
-        sub_result = {1'b0, a} - {1'b0, b};
+	carry = 1'b0;
 
-        case (op)
-            3'b000: begin  // ADD
-                result = add_result[7:0];
-                carry  = add_result[8];
-            end
-            3'b001: begin  // SUB
-                result = sub_result[7:0];
-                carry  = sub_result[8];
-            end
-            3'b010: result = a & b;       // AND
-            3'b011: result = a | b;       // OR
-            3'b100: result = a ^ b;       // XOR
-            3'b101: result = ~a;          // NOT (ignora b)
-            3'b110: result = a << 1;      // shift stanga
-            3'b111: result = a >> 1;      // shift dreapta
-            default: result = 8'b0;
-        endcase
-    end
+	case(op)
+		3'b000:
+			begin
+			result = add_extended[7:0];
+			carry = add_extended[8];
+			end
+		3'b001:
+			begin
+			result = sub_extended[7:0];
+			carry = sub_extended[8];
+			end
+		3'b010:
+			begin
+			result = a & b;
+			end
+		3'b011:
+			begin
+			result = a | b;
+			end
+		3'b100:
+			begin
+			result = a ^ b;
+			end
+		3'b101:
+			begin
+			result = ~a;
+			end
+		3'b110:
+			begin
+			result = a << 1;
+			end
+		3'b111:
+			begin
+			result = a >> 1;
+			end
+		default:
+			begin
+			result = 8'b0;
+			end
+	endcase
+end
 
-    // flags
-    assign zero     = (result == 8'b0);
-    assign negative = result[7];
+assign zero = (result == 8'b0);
 
 endmodule

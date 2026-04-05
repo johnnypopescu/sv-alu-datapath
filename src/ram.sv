@@ -1,24 +1,25 @@
-// RAM sincron 16 x 8 biti - pt stocare rezultate
-// scriere sincrona, citire combinationala
+// RAM 8x8 - dupa modelul ram64x8_v1 de la lab 8
 
-module ram (
-    input  logic       clk,
-    input  logic       we,
-    input  logic [3:0] addr,
-    input  logic [7:0] data_in,
-    output logic [7:0] data_out
-);
+module ram
+	(
+		input logic clock,
+		input logic [2:0] addr_read,
+		output logic [7:0] data_read,
+		input logic we,
+		input logic [2:0] addr_write,
+		input logic [7:0] data_write
+	);
 
-    logic [7:0] mem [0:15];
+logic [7:0] memorie_efectiva [0:7];
 
-    always_ff @(posedge clk) begin
-        if (we) mem[addr] <= data_in;
-    end
+assign data_read = memorie_efectiva[addr_read];
 
-    assign data_out = mem[addr];
-
-    initial begin
-        for (int i = 0; i < 16; i++) mem[i] = 8'b0;
-    end
+always_ff @(posedge clock)
+begin
+	if(we == 1)
+		begin
+		memorie_efectiva[addr_write] <= data_write;
+		end
+end
 
 endmodule
