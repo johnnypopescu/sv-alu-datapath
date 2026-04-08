@@ -1,6 +1,3 @@
-// ALU pe 8 biti - 8 operatii selectate pe 3 biti
-// circuit pur combinational, dupa stilul de la lab 3 si 5
-
 module alu
 	(
 		input logic [7:0] a,
@@ -11,26 +8,25 @@ module alu
 		output logic carry
 	);
 
-logic [8:0] add_extended;
-logic [8:0] sub_extended;
+logic [8:0] add_ext;
+logic [8:0] sub_ext;
 
 always_comb
 begin
-	add_extended = {1'b0, a} + {1'b0, b};
-	sub_extended = {1'b0, a} - {1'b0, b};
-
+	add_ext = {1'b0, a} + {1'b0, b};
+	sub_ext = {1'b0, a} - {1'b0, b};
 	carry = 1'b0;
 
 	case(op)
 		3'b000:
 			begin
-			result = add_extended[7:0];
-			carry = add_extended[8];
+			result = add_ext[7:0];
+			carry = add_ext[8];
 			end
 		3'b001:
 			begin
-			result = sub_extended[7:0];
-			carry = sub_extended[8];
+			result = sub_ext[7:0];
+			carry = sub_ext[8];
 			end
 		3'b010:
 			begin

@@ -1,5 +1,3 @@
-// RAM 8x8 - dupa modelul ram64x8_v1 de la lab 8
-
 module ram
 	(
 		input logic clock,

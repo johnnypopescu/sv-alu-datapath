@@ -1,6 +1,3 @@
-// register file - 4 registri pe 8 biti
-// dupa modelul de la lab 8 (register_8b), dar cu adresare
-
 module register_file
 	(
 		input logic clock,

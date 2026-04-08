@@ -1,86 +1,72 @@
-// testbench datapath - secventa de operatii
-// citeste din ROM, ruleaza prin ALU, scrie in RAM
-
 `timescale 1ns / 1ps
 
 module datapath_tb;
 
-logic clock;
-logic reset;
-logic [2:0] rom_addr_a;
-logic [2:0] rom_addr_b;
-logic [2:0] op;
-logic we_ram;
-logic [2:0] ram_addr;
-logic [7:0] result;
-logic zero;
-logic carry;
+logic clock_tb;
+logic reset_tb;
+logic [2:0] rom_addr_a_tb;
+logic [2:0] rom_addr_b_tb;
+logic [2:0] op_tb;
+logic we_ram_tb;
+logic [2:0] ram_addr_tb;
+logic [7:0] result_tb;
+logic zero_tb;
+logic carry_tb;
 
 datapath dut
 	(
-		.clock(clock),
-		.reset(reset),
-		.rom_addr_a(rom_addr_a),
-		.rom_addr_b(rom_addr_b),
-		.op(op),
-		.we_ram(we_ram),
-		.ram_addr(ram_addr),
-		.result(result),
-		.zero(zero),
-		.carry(carry)
+		.clock(clock_tb),
+		.reset(reset_tb),
+		.rom_addr_a(rom_addr_a_tb),
+		.rom_addr_b(rom_addr_b_tb),
+		.op(op_tb),
+		.we_ram(we_ram_tb),
+		.ram_addr(ram_addr_tb),
+		.result(result_tb),
+		.zero(zero_tb),
+		.carry(carry_tb)
 	);
 
-// generare ceas 10ns
-always #5 clock = ~clock;
+always #5 clock_tb = ~clock_tb;
 
 initial
 begin
-	clock = 0;
-	reset = 1;
-	rom_addr_a = 0;
-	rom_addr_b = 0;
-	op = 0;
-	we_ram = 0;
-	ram_addr = 0;
+	clock_tb = 0;
+	reset_tb = 1;
+	rom_addr_a_tb = 0;
+	rom_addr_b_tb = 0;
+	op_tb = 0;
+	we_ram_tb = 0;
+	ram_addr_tb = 0;
 
-	#20 reset = 0;
+	#20 reset_tb = 0;
 
-	$display("--- Test Datapath ---");
+	rom_addr_a_tb = 3'd0;
+	rom_addr_b_tb = 3'd1;
+	op_tb = 3'b000;
+	ram_addr_tb = 3'd0;
+	we_ram_tb = 1;
+	#10 we_ram_tb = 0;
 
-	// ADD ROM[0] + ROM[1] = 10 + 25
-	rom_addr_a = 3'd0;
-	rom_addr_b = 3'd1;
-	op = 3'b000;
-	ram_addr = 3'd0;
-	we_ram = 1;
-	#10 we_ram = 0;
-	$display("ADD ROM[0]+ROM[1]: result=%0d", result);
+	rom_addr_a_tb = 3'd3;
+	rom_addr_b_tb = 3'd2;
+	op_tb = 3'b001;
+	ram_addr_tb = 3'd1;
+	we_ram_tb = 1;
+	#10 we_ram_tb = 0;
 
-	// SUB ROM[3] - ROM[2] = 200 - 100
-	rom_addr_a = 3'd3;
-	rom_addr_b = 3'd2;
-	op = 3'b001;
-	ram_addr = 3'd1;
-	we_ram = 1;
-	#10 we_ram = 0;
-	$display("SUB ROM[3]-ROM[2]: result=%0d", result);
+	rom_addr_a_tb = 3'd4;
+	rom_addr_b_tb = 3'd7;
+	op_tb = 3'b010;
+	ram_addr_tb = 3'd2;
+	we_ram_tb = 1;
+	#10 we_ram_tb = 0;
 
-	// AND ROM[4] & ROM[7] = 0xAA & 0x0F
-	rom_addr_a = 3'd4;
-	rom_addr_b = 3'd7;
-	op = 3'b010;
-	ram_addr = 3'd2;
-	we_ram = 1;
-	#10 we_ram = 0;
-	$display("AND ROM[4]&ROM[7]: result=%h", result);
+	rom_addr_a_tb = 3'd6;
+	rom_addr_b_tb = 3'd6;
+	op_tb = 3'b100;
+	#10;
 
-	// XOR ROM[6] ^ ROM[6] = 0
-	rom_addr_a = 3'd6;
-	rom_addr_b = 3'd6;
-	op = 3'b100;
-	#10 $display("XOR ROM[6]^ROM[6]: result=%0d zero=%b", result, zero);
-
-	$display("--- Done ---");
 	#20 $finish;
 end
 

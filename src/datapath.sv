@@ -1,7 +1,3 @@
-// datapath - modulul top
-// leaga ROM -> ALU -> RAM
-// stocheaza rezultatul ALU in RAM la adresa selectata
-
 module datapath
 	(
 		input logic clock,

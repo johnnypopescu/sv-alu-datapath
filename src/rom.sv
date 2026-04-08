@@ -1,6 +1,3 @@
-// ROM 8x8 - operand-uri preincarcate
-// dupa modelul Display7Seg de la lab 4
-
 module rom
 	(
 		input logic [2:0] addr,
