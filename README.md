@@ -36,13 +36,14 @@ Proiect CID (Circuite Integrate Digitale, ETTI UPB) — ALU pe 8 biti conectata 
 5. Run Simulation -> Run Behavioral Simulation
 6. Verifica semnalele in waveform
 
-## Waveform
+## Waveform - Datapath complet
 
 ![Datapath Waveform](screenshots/datapath_waveform.png)
 
-Secventa de teste:
-- `0x14`: ADD 10 + 10
-- `0x23`: ADD 10 + 25
-- `0x64`: SUB 200 - 100
-- `0x0A`: AND 0xAA & 0x0F
-- `0x00`: XOR 0xFF ^ 0xFF (zero flag = 1)
+Secventa: ADD 10+10=0x14, ADD 10+25=0x23, SUB 200-100=0x64, AND 0xAA&0x0F=0x0A, XOR 0xFF^0xFF=0x00 (zero flag = 1).
+
+## Waveform - ALU testat izolat
+
+![ALU Waveform](screenshots/alu_waveform.png)
+
+Toate cele 8 operatii ale ALU: ADD (`000`), SUB (`001`), AND (`010`), OR (`011`), XOR (`100`), NOT (`101`), SHL (`110`), SHR (`111`).
